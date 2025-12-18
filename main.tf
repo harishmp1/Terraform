@@ -1,6 +1,6 @@
 resource "google_storage_bucket" "my_bucket" {
-  name          = "my-unique-bucket-name-2025" # Replace with your actual bucket name
-  location      = "US-CENTRAL1"
+  name          = "Shruthi-bucket" # Replace with your actual bucket name
+  location      = "US-east4"
   force_destroy = true
 
   # This is the labels block you just added
@@ -13,7 +13,7 @@ resource "google_storage_bucket" "my_bucket" {
 }
 # 1. Define the Network (VPC)
 resource "google_compute_network" "vpc_network" {
-  name                    = "terraform-network"
+  name                    = "shruthi-network"
   auto_create_subnetworks = true
 }
 
