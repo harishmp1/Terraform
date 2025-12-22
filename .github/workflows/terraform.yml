@@ -1,0 +1,52 @@
+name: 'Terraform GCP Deploy'
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write # Required for requesting the JWT from GitHub
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    
+    # Use environment variables for common values
+    env:
+      PROJECT_ID: 'shruthi-481814'
+      PROJECT_NUMBER: '548086356482'
+      POOL_NAME: 'github-pool'
+      PROVIDER_NAME: 'github-provider'
+      SERVICE_ACCOUNT: '548086356482-compute@developer.gserviceaccount.com'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        token_format: 'access_token'
+        workload_identity_provider: 'projects/${{ env.PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ env.POOL_NAME }}/providers/${{ env.PROVIDER_NAME }}'
+        service_account: '${{ env.SERVICE_ACCOUNT }}'
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: terraform init
+      working-directory: ./root # Adjust if your main.tf is in a different folder
+
+    - name: Terraform Plan
+      run: terraform plan -input=false
+      working-directory: ./root
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve -input=false
+      working-directory: ./root
